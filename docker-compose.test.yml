@@ -1,0 +1,29 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: brainy_test
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  backend-tests:
+    image: python:3.11-slim
+    working_dir: /workspace
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      BRAINY_ENV: test
+      BRAINY_TEST_MYSQL_URL: mysql://root@mysql:3306/brainy_test?ssl=false
+      BRAINY_DB_PATH: /tmp/brainy-integration.db
+      BRAINY_CORS_ORIGINS: ""
+      PYTHONPATH: /workspace/backend
+    volumes:
+      - .:/workspace
+    command: >-
+      sh -c "pip install --no-cache-dir -r backend/requirements-dev.txt
+      && python -m pytest backend/tests/integration -q -m integration"
