@@ -4,7 +4,10 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — Supabase client disabled.");
+  console.error(
+    "Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. " +
+      "Make sure your Bolt database is connected so these are injected automatically."
+  );
 }
 
 export const supabase = createClient(
